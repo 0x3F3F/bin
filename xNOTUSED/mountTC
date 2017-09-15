@@ -1,0 +1,18 @@
+#!/usr/bin/expect
+# for debugging
+#exp_internal 1
+
+# Not using this anymore as no longer use tcplay as can use truecrypt instead
+# will keep a copy of this.  If used it should go in /sur/local/sbin dir with 700 perms.
+
+set timeout 100
+
+spawn sudo /home/iain/bin/tcplayMount.sh open
+sleep 1
+expect  "Passphrase*"
+send "iENTER PASSWORD HERE
+expect eof
+
+#parray expect_out
+
+

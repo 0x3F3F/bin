@@ -1,0 +1,4 @@
+#!/bin/bash
+libreoffice5.2 -o '/media/iain/Data/Archived Docs/Shares/Portfolio/P.ods'
+
+

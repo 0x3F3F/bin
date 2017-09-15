@@ -1,0 +1,2 @@
+gksu synaptic
+

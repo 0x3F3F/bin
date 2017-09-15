@@ -1,0 +1,4 @@
+
+#Launch cmus in urxvt shell
+urxvt -geometry 80x3 -name 'cmus' -e sh -c "cmus"
+

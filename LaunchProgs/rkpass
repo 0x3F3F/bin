@@ -1,0 +1,3 @@
+#Launch kpclis in urxivt shell
+urxvt -geometry 80x3 -name 'kpcli' -e sh -c "kpcli.pl --kdb=/media/iain/Data/SysVar/cache/MZXD5GJ3F55FGH8IBP"
+

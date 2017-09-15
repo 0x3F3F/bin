@@ -1,0 +1,5 @@
+
+# Launch ranger in urxvt shell
+# Need urxvt as allows image preview
+urxvt -geometry 80x3 -name 'ranger' -e sh -c "ranger"
+
