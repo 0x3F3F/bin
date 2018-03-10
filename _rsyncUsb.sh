@@ -12,7 +12,7 @@
 # >> appends to log file rather than overwrites it.  I'll just keep doing that as I can periodically review it then delete - or do once a month using CRON
 
 # Note on sudoers
-# Added this script to sudoers file with 'sudo visudo' but I founf that it only worked if called vis:
+# Added this script/truecrypt to sudoers file with 'sudo visudo':
 # sudo ./rsyncUsb or sudo /home/iain/bin/NoAutoBAckup/rsuncUsb.sh IF EXECUTE rsyncUsb.sh STILL GET PASSWORD PROMPT
 # Think this is realted to that dir not being in path for sudo user.  Think it best I put this in /usr/local/bin
 # IMPORTANT: I've up this script in /usr/local/bin (with relevant permissions). This copy (with _) is just to have a backup of it.
@@ -34,9 +34,9 @@ if [ ! -d "/media/iain/usb1/SysVar" ]; then
 fi
 
 # OK fist mount the truecrypt volume
-# IMPORTANT PERMISSIONS ON THIS SCRIPT 700 AS HAS PASSWORD
+# IMPORTANT PERMISSIONS ON THIS SCRIPT 711 AS HAS PASSWORD
 mkdir -p /media/iain/TrueCrypt
-/usr/bin/truecrypt --password="XXXXXXXXXXXXXXXXXxx" /media/iain/usb1/SysVar/containers/baks.tc  /media/iain/TrueCrypt
+/usr/bin/truecrypt -t --keyfiles="" --protect-hidden="no" --password="XXXXXXXXXXXXXXXXXxx" /media/iain/usb1/SysVar/containers/baks.tc  /media/iain/TrueCrypt
 chown -R iain:iain /media/iain/TrueCrypt
 
 #### Test that Truecrypt Volume mounted correctly.  
@@ -50,23 +50,23 @@ fi
 ####### Sync Keepass
 # Note that I'm using checksum as udiskie mounts with diff permissions and always get copy, I only want to overwrigt if changed.
 # Checksum is safer than size-only but slower=> only select specific file.
-rsync -avz  --checksum --itemize-changes /media/iain/Data/SysVar/cache/TRUECRIPT_FILENAME_GOES_HERE /media/iain/usb1/SysVar/cache | egrep '^>' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
+rsync -avz  --checksum --itemize-changes /media/iain/Data/SysVar/cache/FILENAME_GOES_HERE /media/iain/usb1/SysVar/cache | egrep '^>' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
 
 
 ###### Sync Finances 
-# Use ignore-existing so as not to propagate corrupt files.  Will check what hasn't been synced at end
+# First Sync everything, BUT ignore-existing so as not to propagate potentially corrupt files.  Will check what hasn't been synced at end
 # Exclude: Open Office lock documents, TrueCrypt folder
-rsync -avz --exclude '.~lock*' --exclude TrueCrypt --ignore-existing --itemize-changes '/media/iain/Data/Archived Docs' /media/iain/TrueCrypt | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --exclude '.~lock*' --exclude TrueCrypt --ignore-existing --itemize-changes '/home/iain/Documents/Archived Docs' /media/iain/TrueCrypt | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
 # Now sync existing files that we know may have ligitimately changed.  Need include Before exclude.
 # inlude '*/' is essential as otherise it doesn't searh in the directories
 # Including spreadsheets, this is a risk but generally have pdf's generated from them so should be OK. P.ods done separately as on diff branch.
-rsync -avz --include '*/' --include '*.ods' --include '*.odt' --include 'ProofSpanish*' --include '*DaysInUK.txt'  --exclude '*' --size-only --itemize-changes '/media/iain/Data/Archived Docs/Tax_IncAutonomoDocs' '/media/iain/TrueCrypt/Archived Docs' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
-rsync -avz --size-only --itemize-changes '/media/iain/Data/Archived Docs/Shares/Portfolio/P.ods' '/media/iain/TrueCrypt/Archived Docs/Shares/Portfolio' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --include '*/' --include '*.ods' --include '*.odt' --include 'ProofSpanish*' --include '*DaysInUK.txt'  --exclude '*' --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Tax_IncAutonomoDocs' '/media/iain/TrueCrypt/Archived Docs' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Shares/Portfolio/P.ods' '/media/iain/TrueCrypt/Archived Docs/Shares/Portfolio' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
 
 
 ####### Sync Photos - again using ignore-existing 
 ####### Sync ONLY CURRENT YEAR, does this automatically.  Exluding Videos as they're huge.
-rsync -avz --ignore-existing --itemize-changes --exclude '*.mp4' "/media/iain/Data/Photos/${YEAR}" /media/iain/TrueCrypt/Photos | egrep '^>' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
+rsync -avz --ignore-existing --itemize-changes --exclude '*.mp4' "/home/iain/Documents/Photos/${YEAR}" /media/iain/TrueCrypt/Photos | egrep '^>' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
 
 ####### CHECKING MISSED FILES
 # Now as used 'safe' option to syn finance docs.  Want to report on existing docs that have been modified but not synced
@@ -77,8 +77,8 @@ STR=$(egrep $DT /home/iain/.logs/rsyncUsb.log)
 echo "Latest Updates:"
 echo "$STR"
 echo ""
-echo -e "To avoid propagating corrupt fies, the following \e[7mHAVE NOT BEEN SYNCED\e[27m.  Please review and update manually:"
-rsync -avz --exclude '.~lock*' --exclude TrueCrypt --size-only --dry-run --itemize-changes '/media/iain/Data/Archived Docs' /media/iain/TrueCrypt | egrep '^>f'
+echo -e "To avoid propagating corrupt fies, the following \e[7mHAVE NOT BEEN SYNCED\e[27m.  Please review and update manually if needed:"
+rsync -avz --exclude '.~lock*' --exclude TrueCrypt --size-only --dry-run --itemize-changes '/home/iain/Documents/Archived Docs' /media/iain/TrueCrypt | egrep '^>f'
 
 # If argument passed, then we do't want to unmount
 if [ -z "$1" ]; then

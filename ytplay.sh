@@ -6,8 +6,8 @@
 #			Execute ./ytplay.sh		(REcomment binding to a hotkey)
 
 VID=`xclip -selection clipboard -o`
-echo "$VID"
-mpv  --ytdl-format="bestvideo[height<=?480][vcodec!=vp9]+bestaudio/best" "$VID"
+#echo "$VID"
+mpv --really-quiet --ytdl-format="bestvideo[height<=?480][vcodec!=vp9]+bestaudio/best" "$VID"
 
 
 # Need Cookies set to play
