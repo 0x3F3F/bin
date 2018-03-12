@@ -16,7 +16,7 @@
 # >> appends to log file rather than overwrites it.  I'll just keep doing that as I can periodically review it then delete - or do once a month using CRON
 
 # Set the log file
-RSYNCLOG=/home/iain/.logs/CRON_rsyncPi.log
+RSYNCLOG=/home/iain/.logs/rsyncPi.log
 TIMESTAMP=`date "+%Y-%m-%d %H:%M:%S"`
 
 
@@ -46,11 +46,11 @@ rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHos
 
 
 ####### Sync Keepass
-rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --itemize-changes /media/iain/win10/Users/iain/SysVar/cache raspberrypi:/media/wdhd/Backups/SysVar | egrep '^<' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
+rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --itemize-changes /media/iain/Win10/Users/iain/SysVar/cache raspberrypi:/media/wdhd/Backups/SysVar | egrep '^<' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
 
 
 ####### Sync Photos - using ignore-existing otherwise will write loads on initial compare due to file dates diff
-rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --ignore-existing --itemize-changes --exclude '*.mp4'  /media/iain/Photos raspberrypi:/media/wdhd/Backups | egrep '^<' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
+rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --ignore-existing --itemize-changes --exclude '*.mp4'  /home/iain/Photos raspberrypi:/media/wdhd/Backups | egrep '^<' | sed "s|^|$TIMESTAMP |" >> $RSYNCLOG
 
 
 ####### Sync Finances
@@ -69,7 +69,7 @@ rsync -avz --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Sha
 # using size only and otherwise will write loads on initial compare due to file dates diff.  size-only will  pick up file changes.
 ###### Exclude: Open Office lock documents, TrueCrypt folder
 DT=`date "+%Y-%m-%d"`
-STR=$(egrep $DT /home/iain/.logs/CRON_rsyncPi.log) 
+STR=$(egrep $DT /home/iain/.logs/rsyncPi.log) 
 echo "Latest Updates:"
 echo "$STR"
 echo ""
