@@ -18,7 +18,7 @@ And add `bin` to your path, but you've probably done that already.
 	rsyncPi.sh     > Syncs (rsync) important folders on my machine with my raspberry pi using ssh
 	rsyncUsb.sh    > Auto Mounts encrypted Truecrypt Partition, performs rsync,  then safely unmounts.
 	screenshot.sh  > Was using this in i3 to quickly take a screenshot without using 3rd party progs.
-    ytplay.sh      > Allows me to play Youtube vids via mpv, simply supply URL.
+    playUrl.sh     > Play web media vids/mp3 via mpv.  It copies current firefox URL and plays.
 	volume.sh      > because "I can never remember the fucking command for this"
 
 
