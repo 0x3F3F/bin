@@ -61,8 +61,8 @@ rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHos
 # Now sync existing files that we know may have ligitimately changed.  Need include Before exclude.
 # inlude '*/' is essential as otherise it doesn't searh in the directories
 # Including spreadsheets, this is a risk but generally have pdf's generated from them so should be OK. P.ods done separately as on diff branch.
-rsync -avz --include '*/' --include '*.ods' --include '*.odt' --include 'ProofSpanish*' --include '*DaysInUK.txt'  --exclude '*' --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Tax_IncAutonomoDocs' 'raspberrypi:/media/wdhd/Backups/Documents/Archived Docs' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
-rsync -avz --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Shares/Portfolio/P.ods' 'raspberrypi:/media/wdhd/Backups/Documents/Archived Docs/Shares/Portfolio' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --include '*/' --include '*.ods' --include '*.odt' --include 'ProofSpanish*' --include '*DaysInUK.txt'  --exclude '*' --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Tax_IncAutonomoDocs' raspberrypi:"/media/wdhd/Backups/Documents/Archived\ Docs" | egrep '^<' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Shares/Portfolio/P.ods' raspberrypi:"/media/wdhd/Backups/Documents/Archived\ Docs/Shares/Portfolio" | egrep '^<' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
 
 
 ####### CHECKING MISSED FILES
@@ -74,6 +74,6 @@ STR=$(egrep $DT /home/iain/.logs/rsyncPi.log)
 echo "Latest Updates:"
 echo "$STR"
 echo ""
-echo -e "To avoid propagating corrupt fies, the following \e[7mHAVE NOT BEEN SYNCED\e[27m.  Please review and update manually:"
-rsync -avz --exclude '.~lock*' --size-only --dry-run --itemize-changes '/home/iain/Documents/Archived Docs' raspberrypi:/media/wdhd/Backups/Documents | egrep '^>f'
+echo -e "To avoid propagating corrupt files, the following \e[7mHAVE NOT BEEN SYNCED\e[27m.  Please review and update manually:"
+rsync -avz --exclude '.~lock*' --size-only --dry-run --itemize-changes '/home/iain/Documents/Archived Docs' raspberrypi:/media/wdhd/Backups/Documents | egrep '^<f'
 
