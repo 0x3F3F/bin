@@ -1,24 +1,38 @@
+#!/bin/bash
 ########################################################################
 #
 # NAme:		playUrl.sh
 # Author:	Iain Benson
-# DEsc:		Plays current firefox url using mpv.
+# Desc:		Plays current firefox url using mpv.
 #
 # Usage:	Bind to key
 #			Press key to listen/play media from current firefox url
 #
+# Dependcy:	mpv, xdotool, xclip, firefox
+#
 ########################################################################
 
 
-# Copy Current link URL to clipboard
+# Copy Current link URL to clipboard susing firefox shortcuts
 wmctrl -a "firefox"
-sleep 0.5
+sleep 0.6
 xdotool key ctrl+l
-sleep 0.5
+sleep 0.4
 xdotool key ctrl+c
 
+# Grab the URL from the clipboard
+VID=`xclip -selection clipboard -o`
 
 # Start playing
-VID=`xclip -selection clipboard -o`
-mpv --really-quiet --ytdl-format="bestvideo[height<=?480][vcodec!=vp9]+bestaudio/best" "$VID"
+if [[ $VID == *"youtube"* ]]
+then
+	# If youtube try and select lower quality as it's only a wee window
+	echo "Playing: Youtube"
+	mpv --really-quiet --osd-level=1 --ytdl-format="bestvideo[height<=?480][vcodec!=vp9]+bestaudio/best" "$VID"
+else
+	# This is probably MP3, force it to open a window
+	echo "Playing: MP3"
+	mpv --force-window --osd-level=3 "$VID"
+fi
+
 

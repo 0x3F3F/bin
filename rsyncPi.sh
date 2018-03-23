@@ -43,6 +43,7 @@ fi
 
 ####### Sync Wiki Notes
 rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --itemize-changes /home/iain/Documents/Notes raspberrypi:/home/pi/Documents | egrep '^<' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --itemize-changes /home/iain/Documents/Finance raspberrypi:/media/wdhd/Backups/Documents | egrep '^<' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
 
 
 ####### Sync Keepass
@@ -56,12 +57,12 @@ rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHos
 ####### Sync Finances
 # Use ignore-existing so as not to propagate corrupt files.  Will check what hasn't been synced at end
 # Exclude: Open Office lock documents
-rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --exclude '.~lock*' --ignore-existing --itemize-changes '/home/iain/Documents/Archived Docs' raspberrypi:/media/wdhd/Backups | egrep '^<' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz -e "ssh -o LogLevel=quiet -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --exclude '.~lock*' --ignore-existing --itemize-changes '/home/iain/Documents/Archived Docs' raspberrypi:/media/wdhd/Backups/Documents | egrep '^<' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
 # Now sync existing files that we know may have ligitimately changed.  Need include Before exclude.
 # inlude '*/' is essential as otherise it doesn't searh in the directories
 # Including spreadsheets, this is a risk but generally have pdf's generated from them so should be OK. P.ods done separately as on diff branch.
-rsync -avz --include '*/' --include '*.ods' --include '*.odt' --include 'ProofSpanish*' --include '*DaysInUK.txt'  --exclude '*' --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Tax_IncAutonomoDocs' 'raspberrypi:/media/wdhd/Backups/Archived Docs' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
-rsync -avz --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Shares/Portfolio/P.ods' 'raspberrypi:/media/wdhd/Backups/Archived Docs/Shares/Portfolio' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --include '*/' --include '*.ods' --include '*.odt' --include 'ProofSpanish*' --include '*DaysInUK.txt'  --exclude '*' --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Tax_IncAutonomoDocs' 'raspberrypi:/media/wdhd/Backups/Documents/Archived Docs' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
+rsync -avz --size-only --itemize-changes '/home/iain/Documents/Archived Docs/Shares/Portfolio/P.ods' 'raspberrypi:/media/wdhd/Backups/Documents/Archived Docs/Shares/Portfolio' | egrep '^>' | sed "s|^|$TIMESTAMP |"  >> $RSYNCLOG
 
 
 ####### CHECKING MISSED FILES
@@ -74,5 +75,5 @@ echo "Latest Updates:"
 echo "$STR"
 echo ""
 echo -e "To avoid propagating corrupt fies, the following \e[7mHAVE NOT BEEN SYNCED\e[27m.  Please review and update manually:"
-rsync -avz --exclude '.~lock*' --size-only --dry-run --itemize-changes '/home/iain/Documents/Archived Docs' raspberrypi:/media/wdhd/Backups | egrep '^>f'
+rsync -avz --exclude '.~lock*' --size-only --dry-run --itemize-changes '/home/iain/Documents/Archived Docs' raspberrypi:/media/wdhd/Backups/Documents | egrep '^>f'
 
