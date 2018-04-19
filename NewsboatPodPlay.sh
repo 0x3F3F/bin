@@ -12,11 +12,11 @@ then
 	# If youtube try and select lower quality as it's only a wee window
 	echo "Playing: Youtube"
 	# Use nohuip to disconnect from terminal, output directed to nohup.out
-	nohup mpv --really-quiet --osd-level=1 --ytdl-format="bestvideo[height<=?480][vcodec!=vp9]+bestaudio/best" "$1" &
+	nohup mpv --really-quiet --osd-level=1 --ytdl-format="bestvideo[height<=?480][vcodec!=vp9]+bestaudio/best" "$1"  > /dev/null 2>&1 &
 
 elif [[ $1 == *"investorfieldguide"* || $1 == *"rationallyspeaking"* ]]
 then
-	# Issue with these site as links to page not podcast url.  Open website
+	# Issue with these sites as links to page not podcast url.  Open website
 	echo "Opening with firefox"
 	firefox "$1"
 
@@ -24,7 +24,7 @@ else
 	# This is probably MP3, force it to open a window
 	echo "Playing: MP3"
 	# Use nohuip to disconnect from terminal, output directed to nohup.out
-	nohup mpv --force-window --no-video --osd-level=3 "$1" 
+	nohup mpv --force-window --no-video --osd-level=3 "$1" > /dev/null 2>&1 &
 fi
 
 # Can't get it to switch back, not huge issue.
