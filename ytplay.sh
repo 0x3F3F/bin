@@ -14,8 +14,7 @@
 #
 #				*Launch from Phone (via Share manu)*
 #				Use Termux.  Create script in bin called 'termux-url-opener'
-#				VID=$1
-#				ssh pi@raspberrypi -t "/home/pi/bin/ytplay.sh $VID"
+#				Leave it to that script to kill existing ytplay instances
 #
 #		Dependencies:
 #				omxplayer
@@ -25,35 +24,43 @@
 #
 ############################################################################################## 
 
+# Warning: going to use colour. Sunglasses on.
+RED='\033[0;31m'
+NO_COL='\033[0m'
+
 PlayVid()
 {
+	# Fetch 'real' video link (-g) and title (-e) with youtube-dl
 	# If specify diff audio/video streams they're not being multiplexed (ffmpeg issue?) => No sound
 	# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
 	# Try for mp4 first (so wont get vp9).  If no mp4 then default to best that is avilable.
-	omxplayer $(youtube-dl -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
+	clear; echo "Fetching video info"
+	TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
+
+	# Sometimes title is followed by newline which breaks sed regex
+	FIXEDTITLEURL=$(echo $TITLEURL | tr '\n' ' ' | tr '\r' ' ')
+
+	# Title followed by link.  Split on http
+	LINK=$(echo $FIXEDTITLEURL | sed 's/.*http/http/')
+	TITLE=$(echo $FIXEDTITLEURL | sed 's/http.*//')
+
+	# Output Title to shell
+	clear; echo -e "Playing: ${RED}$TITLE${NO_COL}"
+
+	# omx (hidden) -b option clears sides of video for 3:4 vids as terminal was visible
+	omxplayer -b "$LINK"
 
 	# Backup option was MPV, but no Hw Acceleation and couldn't compile it on Pi
 	#mpv  --quiet --osd-level=1 --volume-max=130 --volume=115 --autofit="100%x100%" --ytdl-format="bestvideo[vcodec!=vp9][height<=?720][fps<=30]+bestaudio[ext=m4a]" "$1"
 }
 
 
-
-# Clear terminal which could be visible at sides of video
-sudo sh -c "TERM=linux setterm  -foreground black -clear all >/dev/tty0"	
-
-# Kill existing omxplayer/feh instances.
-if pgrep -x "omxplayer" > /dev/null
-then
-	killall omxplayer 
-fi
-
-# fbi processes may be running. kill 'em
-sudo killall fbi
-
 # Determine if playing single video or playlist
 if [[ $1 = *"list="* ]]; then
 
-	# Issue with url containing playlist not working.  fix it
+	echo "Reading Youtube Playlist."
+
+	# Issue with url containing watch not working.  fix it
 	FIXED=$(echo "$1"|sed 's/watch.\+list=/playlist?list=/g')
 
 	# If playlist download with youtube-dl it as json
@@ -64,25 +71,19 @@ if [[ $1 = *"list="* ]]; then
 
 	# For loop uses whitespace.  Use Internal File Separator to use \r instead
 	IFS=$'\r'
-	RED='\033[0;31m'
-	NO_COL='\033[0m'
 	for line in $PLAYLIST_JSON
 	do
-		# Get the Title and Url.  Use sq ro process json
-		TITLE=$(echo $line | jq -r '.title')
+		# Get the Title and Url.  Use jq to process json
+		#TITLE=$(echo $line | jq -r '.title')
 		URL=$(echo $line | jq -r '.url')
 
-		# Output what we're playing to terminal
-		clear
-		#echo $TITLE
-		#echo $URL
-		echo -e "Playing: ${RED}$TITLE${NO_COL}"
-
-		# Create Url from id and play using our function above
+		# Create Url(web url not extracted omx compatable one) from id and play using our function above
 		PlayVid "https://www.youtube.com/watch?v=$URL"
 
 		# Once video terminate, give user ability to quit out of playlist
+		echo -e "${RED}"
 		read -p "Press q to quit playlist " -t 2 -n 1 key <&1
+		echo -e "${NO_COL}"
 		if [[ $key = q ]] ; then
 			break
 		fi
@@ -96,13 +97,4 @@ else
 
 fi
 
-
-# Restore normal terminal colours
-sudo sh -c "TERM=linux setterm  -foreground white -clear all >/dev/tty0"	
-
-
-# Actually, lets display something instead of a black screen
-# X not running so use framebuffer. Neaeds sudo as virit console owned by root
-PHOTODIR=~/Pictures/Wallpaper/Rasp 
-sudo fbi -a --noverbose -T 1 -t 80 -u `find $PHOTODIR -iname "*.jpg"`
 
