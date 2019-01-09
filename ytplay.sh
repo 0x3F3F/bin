@@ -30,6 +30,9 @@ NO_COL='\033[0m'
 
 PlayVid()
 {
+	# Slow ytdl due to importing extractors for sites:
+	# https://github.com/rg3/youtube-dl/issues/3029
+
 	# Fetch 'real' video link (-g) and title (-e) with youtube-dl
 	# If specify diff audio/video streams they're not being multiplexed (ffmpeg issue?) => No sound
 	# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
@@ -47,8 +50,10 @@ PlayVid()
 	# Output Title to shell
 	clear; echo -e "Playing: ${RED}$TITLE${NO_COL}"
 
-	# omx (hidden) -b option clears sides of video for 3:4 vids as terminal was visible
-	omxplayer -b "$LINK"
+	# Use the -r flag to clear display prior to changing resolution.
+	# Was using -b, but this caused issues when pausing videos on new tv
+	# Need these otherwise terminal/wallpaper may be visible in background
+	omxplayer -o local -r "$LINK"
 
 	# Backup option was MPV, but no Hw Acceleation and couldn't compile it on Pi
 	#mpv  --quiet --osd-level=1 --volume-max=130 --volume=115 --autofit="100%x100%" --ytdl-format="bestvideo[vcodec!=vp9][height<=?720][fps<=30]+bestaudio[ext=m4a]" "$1"
@@ -97,4 +102,6 @@ else
 
 fi
 
+# As we've cleared display, lets put back wallpaper
+sudo fbi -a --noverbose --fitwidth -T 1 /home/pi/Pictures/Wallpaper/Rasp/RaspiWallpaper2.jpg
 
