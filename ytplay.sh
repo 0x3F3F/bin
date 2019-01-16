@@ -26,6 +26,8 @@
 
 # Warning: going to use colour. Sunglasses on.
 RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
 NO_COL='\033[0m'
 
 PlayVid()
@@ -46,19 +48,41 @@ PlayVid()
 	# Title followed by link.  Split on http
 	LINK=$(echo $FIXEDTITLEURL | sed 's/.*http/http/')
 	TITLE=$(echo $FIXEDTITLEURL | sed 's/http.*//')
+	#DURATION=$(echo $FIXEDTITLEURL | sed 's/http.*//')
 
 	# Output Title to shell
-	clear; echo -e "Playing: ${RED}$TITLE${NO_COL}"
+	clear; 
+	echo -e "Playing: ${RED}$TITLE${NO_COL}"
+	[[ $2 == 'local' ]] && echo -e "Audio Out: ${GREEN}Hifi${NO_COL}" || echo -e "Audio Out: ${CYAN}Telly${NO_COL}"
 
 	# Use the -r flag to clear display prior to changing resolution.
 	# Was using -b, but this caused issues when pausing videos on new tv
 	# Need these otherwise terminal/wallpaper may be visible in background
-	omxplayer -o local -r "$LINK"
+	# User has selected output audio device via $2
+	omxplayer -o $2 -r "$LINK"
 
 	# Backup option was MPV, but no Hw Acceleation and couldn't compile it on Pi
 	#mpv  --quiet --osd-level=1 --volume-max=130 --volume=115 --autofit="100%x100%" --ytdl-format="bestvideo[vcodec!=vp9][height<=?720][fps<=30]+bestaudio[ext=m4a]" "$1"
 }
 
+
+
+
+###############################################################################################################
+#	ENTRY POINT
+###############################################################################################################
+
+# Choose where want audio sent to
+echo -e "Press ${CYAN}t for TV${NO_COL} Audio, or ${GREEN}h for Hifi${NO_COL} (Default) " 
+read -t 2 -n 1 key <&1
+clear; printf "Audio output selected: "
+if [[ $key = t ]] ; then
+	echo -e "${CYAN}Telly${NO_COL}"
+	OUTPUTTO='hdmi'		# omxplayer -o input
+else
+	echo -e "${GREEN}Hi-Fi${NO_COL}"
+	OUTPUTTO='local'	# omxplayer -o input
+fi
 
 # Determine if playing single video or playlist
 if [[ $1 = *"list="* ]]; then
@@ -83,7 +107,7 @@ if [[ $1 = *"list="* ]]; then
 		URL=$(echo $line | jq -r '.url')
 
 		# Create Url(web url not extracted omx compatable one) from id and play using our function above
-		PlayVid "https://www.youtube.com/watch?v=$URL"
+		PlayVid "https://www.youtube.com/watch?v=$URL" "$OUTPUTTO"
 
 		# Once video terminate, give user ability to quit out of playlist
 		echo -e "${RED}"
@@ -98,7 +122,7 @@ if [[ $1 = *"list="* ]]; then
 else
 
 	# Easy, Playing Single Video
-	PlayVid "$1"
+	PlayVid "$1" "$OUTPUTTO"
 
 fi
 
