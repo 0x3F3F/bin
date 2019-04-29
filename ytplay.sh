@@ -52,14 +52,15 @@ PlayVid()
 
 	# Output Title to shell
 	clear; 
-	echo -e "Playing: ${RED}$TITLE${NO_COL}"
-	[[ $2 == 'local' ]] && echo -e "Audio Out: ${GREEN}Hifi${NO_COL}" || echo -e "Audio Out: ${CYAN}Telly${NO_COL}"
+	[[ $2 == 'local' ]] &&  AUDIO_COL=$GREEN || AUDIO_COL=$CYAN
+	echo -e "Playing: ${AUDIO_COL}$TITLE${NO_COL}"
+	[[ $2 == 'local' ]] && echo -e "Audio Out: ${AUDIO_COL}Hifi${NO_COL}" || echo -e "Audio Out: ${AUDIO_COL}Telly${NO_COL}"
 
 	# Use the -r flag to clear display prior to changing resolution.
 	# Was using -b, but this caused issues when pausing videos on new tv
 	# Need these otherwise terminal/wallpaper may be visible in background
 	# User has selected output audio device via $2
-	omxplayer -o $2 -r "$LINK"
+	omxplayer -o $2  --aspect-mode fill -r "$LINK" > /dev/null
 
 	# Backup option was MPV, but no Hw Acceleation and couldn't compile it on Pi
 	#mpv  --quiet --osd-level=1 --volume-max=130 --volume=115 --autofit="100%x100%" --ytdl-format="bestvideo[vcodec!=vp9][height<=?720][fps<=30]+bestaudio[ext=m4a]" "$1"
@@ -73,15 +74,15 @@ PlayVid()
 ###############################################################################################################
 
 # Choose where want audio sent to
-echo -e "Press ${CYAN}t for TV${NO_COL} Audio, or ${GREEN}h for Hifi${NO_COL} (Default) " 
+echo -e "Press ${CYAN}t for TV${NO_COL} (default), or ${GREEN}h for Hifi${NO_COL} " 
 read -t 2 -n 1 key <&1
 clear; printf "Audio output selected: "
-if [[ $key = t ]] ; then
-	echo -e "${CYAN}Telly${NO_COL}"
-	OUTPUTTO='hdmi'		# omxplayer -o input
-else
+if [[ $key = h ]] ; then
 	echo -e "${GREEN}Hi-Fi${NO_COL}"
 	OUTPUTTO='local'	# omxplayer -o input
+else
+	echo -e "${CYAN}Telly${NO_COL}"
+	OUTPUTTO='hdmi'		# omxplayer -o input
 fi
 
 # Determine if playing single video or playlist
