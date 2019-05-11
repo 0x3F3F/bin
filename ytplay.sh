@@ -30,6 +30,9 @@ GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 NO_COL='\033[0m'
 
+
+
+
 PlayVid()
 {
 	# Slow ytdl due to importing extractors for sites:
@@ -73,17 +76,44 @@ PlayVid()
 #	ENTRY POINT
 ###############################################################################################################
 
+
 # Choose where want audio sent to
-echo -e "Press ${CYAN}t for TV${NO_COL} (default), or ${GREEN}h for Hifi${NO_COL} " 
+echo -e "Press ${CYAN}t for TV${NO_COL}, or ${GREEN}h for Hifi${NO_COL} " 
+if [[ -e .ytplay_DefaultTelly ]] ; then	
+	echo -e "${CYAN}Defaulting to Telly${NO_COL}"
+else
+	echo -e "${GREEN}Defulting to Hi-Fi${NO_COL}"
+fi
+
 read -t 2 -n 1 key <&1
 clear; printf "Audio output selected: "
+
 if [[ $key = h ]] ; then
 	echo -e "${GREEN}Hi-Fi${NO_COL}"
 	OUTPUTTO='local'	# omxplayer -o input
-else
+
+	# Use a temp file to flag default
+	rm .ytplay_Default*
+
+elif [[ $key = t ]] ; then
 	echo -e "${CYAN}Telly${NO_COL}"
 	OUTPUTTO='hdmi'		# omxplayer -o input
+
+	# Use a temp file to flag default
+	touch .ytplay_DefaultTelly
+
+else
+
+	# Use same as last selected
+	if [[ -e .ytplay_DefaultTelly ]] ; then	
+		echo -e "${CYAN}Telly${NO_COL}"
+		OUTPUTTO='hdmi'		# omxplayer -o input
+	else
+		echo -e "${GREEN}Hi-Fi${NO_COL}"
+		OUTPUTTO='local'	# omxplayer -o input
+	fi
 fi
+
 
 # Determine if playing single video or playlist
 if [[ $1 = *"list="* ]]; then
