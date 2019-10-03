@@ -35,23 +35,38 @@ NO_COL='\033[0m'
 
 PlayVid()
 {
-	# Slow ytdl due to importing extractors for sites:
-	# https://github.com/rg3/youtube-dl/issues/3029
+	if [[ $1 = *"youtu"* ]]; then
 
-	# Fetch 'real' video link (-g) and title (-e) with youtube-dl
-	# If specify diff audio/video streams they're not being multiplexed (ffmpeg issue?) => No sound
-	# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
-	# Try for mp4 first (so wont get vp9).  If no mp4 then default to best that is avilable.
-	clear; echo "Fetching video info"
-	TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
+		clear
 
-	# Sometimes title is followed by newline which breaks sed regex
-	FIXEDTITLEURL=$(echo $TITLEURL | tr '\n' ' ' | tr '\r' ' ')
+		# Issue streaming youtube with omxlayer as terminates early, a bug as worked before.
+		# Tried various settings --threshold, --live etc but none worked , so.....
+		# As my internet is fast as fuck, I'll just download it then play
+		youtube-dl -f 'mp4[height <=? 720]/best[height <=? 720]' "$1"
 
-	# Title followed by link.  Split on http
-	LINK=$(echo $FIXEDTITLEURL | sed 's/.*http/http/')
-	TITLE=$(echo $FIXEDTITLEURL | sed 's/http.*//')
-	#DURATION=$(echo $FIXEDTITLEURL | sed 's/http.*//')
+		# Get the file we just downloaded
+		THEFILE=`ls -Art /media/wdhd/FilmsTV/TempQueue/YouTube | tail -n 1`
+		LINK="/media/wdhd/FilmsTV/TempQueue/YouTube/${THEFILE}"
+		TITLE=$THEFILE
+
+	else
+
+		# Fetch 'real' video link (-g) and title (-e) with youtube-dl
+		# If specify diff audio/video streams they're not being multiplexed (ffmpeg issue?) => No sound
+		# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
+		# Try for mp4 first (so wont get vp9).  If no mp4 then default to best that is avilable.
+		clear; echo "Fetching video info"
+		TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
+
+		# Sometimes title is followed by newline which breaks sed regex
+		FIXEDTITLEURL=$(echo $TITLEURL | tr '\n' ' ' | tr '\r' ' ')
+
+		# Title followed by link.  Split on http
+		LINK=$(echo $FIXEDTITLEURL | sed 's/.*http/http/')
+		TITLE=$(echo $FIXEDTITLEURL | sed 's/http.*//')
+		#DURATION=$(echo $FIXEDTITLEURL | sed 's/http.*//')
+
+	fi
 
 	# Output Title to shell
 	clear; 
@@ -63,10 +78,7 @@ PlayVid()
 	# Was using -b, but this caused issues when pausing videos on new tv
 	# Need these otherwise terminal/wallpaper may be visible in background
 	# User has selected output audio device via $2
-	omxplayer -o $2  --aspect-mode fill -r "$LINK" > /dev/null
-
-	# Backup option was MPV, but no Hw Acceleation and couldn't compile it on Pi
-	#mpv  --quiet --osd-level=1 --volume-max=130 --volume=115 --autofit="100%x100%" --ytdl-format="bestvideo[vcodec!=vp9][height<=?720][fps<=30]+bestaudio[ext=m4a]" "$1"
+	omxplayer -o $2  -r "$LINK" > /dev/null
 }
 
 
@@ -158,5 +170,5 @@ else
 fi
 
 # As we've cleared display, lets put back wallpaper
-sudo fbi -a --noverbose --fitwidth -T 1 /home/pi/Pictures/Wallpaper/Rasp/RaspiWallpaper2.jpg
+sudo fbi -a --noverbose --fitwidth -T 1 /home/pi/Pictures/Wallpaper/Rasp/RaspiWallpaper2.jpg 
 
