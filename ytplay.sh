@@ -42,9 +42,10 @@ PlayVid()
 		# Issue streaming youtube with omxlayer as terminates early, a bug as worked before.
 		# Tried various settings --threshold, --live etc but none worked , so.....
 		# As my internet is fast as fuck, I'll just download it then play
-		youtube-dl -f 'mp4[height <=? 720]/best[height <=? 720]' "$1"
+		youtube-dl -f 'mp4[height <=? 720]/best[height <=? 720]' --exec 'touch {}' "$1"
 
 		# Get the file we just downloaded
+		# Executed 'touch' on file as has creation date, not current timestamp
 		THEFILE=`ls -Art /media/wdhd/FilmsTV/TempQueue/YouTube | tail -n 1`
 		LINK="/media/wdhd/FilmsTV/TempQueue/YouTube/${THEFILE}"
 		TITLE=$THEFILE
