@@ -35,14 +35,18 @@ NO_COL='\033[0m'
 
 PlayVid()
 {
-	if [[ $1 = *"youtu"* ]]; then
+
+	# Expand fucking hidden urls (only works for yt, otherwise i=use $1)
+	EXPANDED_URL=`curl -sIL $1 | sed -n 's/[lL]ocation: *//p'`
+	
+	if [[ $EXPANDED_URL = *"youtu"* ]]; then
 
 		clear
 
 		# Issue streaming youtube with omxlayer as terminates early, a bug as worked before.
 		# Tried various settings --threshold, --live etc but none worked , so.....
 		# As my internet is fast as fuck, I'll just download it then play
-		youtube-dl -f 'mp4[height <=? 720]/best[height <=? 720]' --exec 'touch {}' "$1"
+		youtube-dl -f 'mp4[height <=? 720]/best[height <=? 720]' --exec 'touch {}' "$EXPANDED_URL"
 
 		# Get the file we just downloaded
 		# Executed 'touch' on file as has creation date, not current timestamp
@@ -56,7 +60,7 @@ PlayVid()
 		# If specify diff audio/video streams they're not being multiplexed (ffmpeg issue?) => No sound
 		# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
 		# Try for mp4 first (so wont get vp9).  If no mp4 then default to best that is avilable.
-		clear; echo "Fetching video info"
+		clear; echo "Fetching ${1}"
 		TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
 
 		# Sometimes title is followed by newline which breaks sed regex
