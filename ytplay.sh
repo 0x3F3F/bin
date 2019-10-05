@@ -31,17 +31,16 @@ CYAN='\033[0;36m'
 NO_COL='\033[0m'
 
 
-
-
 PlayVid()
 {
 
-	# Expand fucking hidden urls (only works for yt, otherwise i=use $1)
+	# Expand fucking hidden urls 
+	# This works for youtube/twitter but not twitch, so use $1 if streaming
 	EXPANDED_URL=`curl -sIL $1 | sed -n 's/[lL]ocation: *//p'`
 	
 	if [[ $EXPANDED_URL = *"youtu"* ]]; then
 
-		clear
+		clear; echo "Downloading ${EXPANDED_URL}"
 
 		# Issue streaming youtube with omxlayer as terminates early, a bug as worked before.
 		# Tried various settings --threshold, --live etc but none worked , so.....
@@ -49,7 +48,7 @@ PlayVid()
 		youtube-dl -f 'mp4[height <=? 720]/best[height <=? 720]' --exec 'touch {}' "$EXPANDED_URL"
 
 		# Get the file we just downloaded
-		# Executed 'touch' on file as has creation date, not current timestamp
+		# Executed 'touch' on file as had creation date, not current timestamp
 		THEFILE=`ls -Art /media/wdhd/FilmsTV/TempQueue/YouTube | tail -n 1`
 		LINK="/media/wdhd/FilmsTV/TempQueue/YouTube/${THEFILE}"
 		TITLE=$THEFILE
@@ -60,7 +59,7 @@ PlayVid()
 		# If specify diff audio/video streams they're not being multiplexed (ffmpeg issue?) => No sound
 		# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
 		# Try for mp4 first (so wont get vp9).  If no mp4 then default to best that is avilable.
-		clear; echo "Fetching ${1}"
+		clear; echo "Streaming ${1}"
 		TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
 
 		# Sometimes title is followed by newline which breaks sed regex
