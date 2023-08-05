@@ -43,7 +43,7 @@ PlayVid()
 	# Use old youtube-dl behaviour specifying only quality results in single file - See github page.
 	# Try for mp4 first (so wont get vp9).  If no mp4 then default to best that is avilable.
 	clear; echo "Fetching video info"
-	TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 720]/best[height <=? 720]' "$1")
+	TITLEURL=$(youtube-dl -e  -g -f 'mp4[height <=? 480]/best[height <=? 480]' "$1")
 
 	# Sometimes title is followed by newline which breaks sed regex
 	FIXEDTITLEURL=$(echo $TITLEURL | tr '\n' ' ' | tr '\r' ' ')

@@ -10,4 +10,5 @@ then
 	mpv --no-audio-display --loop=no "$1"
 else
 	mpv --loop=inf "$1"
+	#mpv --loop=no "$1"
 fi

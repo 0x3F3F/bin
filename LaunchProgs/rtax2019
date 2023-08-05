@@ -1,0 +1,4 @@
+#!/bin/bash
+libreoffice -o '/home/iain/Documents/Archived Docs/Tax_IncAutonomoDocs/2019/Tax_Submission_2019/IainBensonCGT_2019_Espanol.ods'
+
+
