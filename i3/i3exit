@@ -12,9 +12,13 @@ case "$1" in
         i3-msg exit
         ;;
     suspend)
+		# IRB: Added lock Aug25, easier than updating system settings
+		lock
         dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Suspend" boolean:true  
         ;;
     hibernate)
+		# IRB: Added lock Aug25
+		lock
         dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Hibernate" boolean:true
         ;;
     reboot)
