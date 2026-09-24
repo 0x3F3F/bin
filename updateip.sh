@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This command update the ip address in Op2Config with the supplied ip
-# Usage
+# Usage 
 # In .bashrc add:
 # u () { $HOME/bin/updateip.sh $1 ; }
 
